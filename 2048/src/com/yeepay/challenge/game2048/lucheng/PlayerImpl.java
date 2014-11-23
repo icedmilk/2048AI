@@ -25,6 +25,8 @@ public class PlayerImpl implements GamePlayer
 
 	public static void main(String[] args)
 	{
+		long startTime = System.currentTimeMillis();
+
 		int result = 0;
 
 		final int runTime = 100;
@@ -33,14 +35,19 @@ public class PlayerImpl implements GamePlayer
 		{
 			result += GameConsole.start(PlayerImpl.class);
 		}
-		System.out.println(result / runTime);
+		System.out.println("Avg Score:\t" + result / runTime);
+		long endTime = System.currentTimeMillis() - startTime;
+		System.out.println("Total Time:\t" + endTime / 1000f + " s");
+		System.out
+				.println("Average Time:\t" + endTime / 1000f / runTime + " s");
+
 	}
 
 	private void trackGame(int[][] board)
 	{
-		for (int i = 0; i < 4; i++)
+		for (int i = 0; i < WIDTH; i++)
 		{
-			for (int j = 0; j < 4; j++)
+			for (int j = 0; j < HEIGHT; j++)
 			{
 				System.out.print(board[i][j] + " ");
 			}
@@ -52,8 +59,8 @@ public class PlayerImpl implements GamePlayer
 
 	public void arrayClone(int[][] cloner, int[][] inital)
 	{
-		for (int i = 0; i < 4; i++)
-			for (int j = 0; j < 4; j++)
+		for (int i = 0; i < WIDTH; i++)
+			for (int j = 0; j < HEIGHT; j++)
 				cloner[i][j] = inital[i][j];
 
 	}
@@ -61,7 +68,7 @@ public class PlayerImpl implements GamePlayer
 	public Simulator simulate(int[][] board, int direction)
 	{
 		GameBoard gb = new GameBoard();
-		int[][] arr = new int[4][4];
+		int[][] arr = new int[WIDTH][HEIGHT];
 		double score = 0.0;
 		arrayClone(arr, board);
 
@@ -72,7 +79,7 @@ public class PlayerImpl implements GamePlayer
 			{
 				gb.setNumbers(arr);
 				gb.action(LEFT);
-				score = Smoothness.getValue(arr);
+				score = Evaluation.getEvaluation(arr);
 
 			}
 			break;
@@ -82,7 +89,7 @@ public class PlayerImpl implements GamePlayer
 			{
 				gb.setNumbers(arr);
 				gb.action(RIGHT);
-				score = Smoothness.getValue(arr);
+				score = Evaluation.getEvaluation(arr);
 
 			}
 			break;
@@ -91,7 +98,7 @@ public class PlayerImpl implements GamePlayer
 			{
 				gb.setNumbers(arr);
 				gb.action(UP);
-				score = Smoothness.getValue(arr);
+				score = Evaluation.getEvaluation(arr);
 
 			}
 			break;
@@ -100,12 +107,12 @@ public class PlayerImpl implements GamePlayer
 			{
 				gb.setNumbers(arr);
 				gb.action(DOWN);
-				score = Smoothness.getValue(arr);
+				score = Evaluation.getEvaluation(arr);
 
 			}
 			break;
 		}
-		int[][] arr2 = new int[4][4];
+		int[][] arr2 = new int[WIDTH][HEIGHT];
 		arrayClone(arr2, gb.getNumbers());
 		return new Simulator(arr2, score);
 	}
@@ -140,13 +147,13 @@ public class PlayerImpl implements GamePlayer
 	public double simulateDepth(int[][] board, int depth)
 	{
 		double maxScore = 0.0;
-//		final int finalSize = (int) Math.pow(SIZE, depth);
-//		Simulator[] sim = new Simulator[finalSize];
+		// final int finalSize = (int) Math.pow(SIZE, depth);
+		// Simulator[] sim = new Simulator[finalSize];
 		ArrayList<Simulator> simSave = new ArrayList<Simulator>();
 		int[][] currentBoard = new int[SIZE][SIZE];
 		arrayClone(currentBoard, board);
 		simSave.add(new Simulator(currentBoard, depth));
-		
+
 		for (int i = 1; i <= depth; i++)
 		{
 			int currentSize = simSave.size();
@@ -155,40 +162,38 @@ public class PlayerImpl implements GamePlayer
 
 				for (int k = 0; k < SIZE; k++)// direction
 				{
-					
+
 					Simulator temp = simulate(simSave.get(j).newboard, k);
-					if(temp.score > 0)
+					if (temp.score > 0)
 						simSave.add(temp);
 				}
-				
+
 			}
-			for (int j = 0; j <currentSize; j++)
-			{try
+			for (int j = 0; j < currentSize; j++)
 			{
-				simSave.remove(j);
-			} catch (Exception e)
-			{
-				System.out.println(simSave.size()+" " +currentSize);
-			}
-				
+				try
+				{
+					simSave.remove(j);
+				} catch (Exception e)
+				{
+					System.out.println(simSave.size() + " " + currentSize);
+				}
+
 			}
 
 		}
-		
 
-
-		
 		for (int i = 0; i < simSave.size(); i++)
 		{
 			for (int j = 0; j < SIZE; j++)
 			{
-//				double currentScore2 = simulate(board, j).score;
+				// double currentScore2 = simulate(board, j).score;
 				arrayClone(currentBoard, simSave.get(i).newboard);
 				double currentScore = simulate(currentBoard, j).score;
 				if (currentScore > maxScore)
 					maxScore = currentScore;
 			}
-			
+
 		}
 		return maxScore;
 
@@ -214,14 +219,14 @@ public class PlayerImpl implements GamePlayer
 		Simulator sd = simulate(arg0, 3);
 		d = sd.score;
 
-		final int Depth = 1;
+		final int Depth = 3;
 		if (l > 0)
-			// l = simulateMax(sl.newboard);
+		// l = simulateMax(sl.newboard);
 		{
 			l = simulateDepth(sl.newboard, Depth);
-//			System.out.println(simulateMax(arg0) + " " + l);
+			// System.out.println(simulateMax(arg0) + " " + l);
 		}
-			if (r > 0)
+		if (r > 0)
 			r = simulateDepth(sr.newboard, Depth);
 
 		if (u > 0)
@@ -324,10 +329,10 @@ public class PlayerImpl implements GamePlayer
 	private boolean upAble(int[][] arg0)
 	{
 		boolean flag = false;
-		for (int i = 0; i <= 3; i++)
+		for (int i = 0; i < WIDTH; i++)
 		{
 			flag = false;
-			for (int j = 0; j <= 3; j++)
+			for (int j = 0; j < HEIGHT; j++)
 			{
 				// find the first zero
 				if (!flag && arg0[j][i] == 0)
@@ -360,10 +365,10 @@ public class PlayerImpl implements GamePlayer
 	private boolean leftAble(int[][] arg0)
 	{
 		boolean flag = false;
-		for (int i = 0; i <= 3; i++)
+		for (int i = 0; i < WIDTH; i++)
 		{
 			flag = false;
-			for (int j = 0; j <= 3; j++)
+			for (int j = 0; j < HEIGHT; j++)
 			{
 				// find the first zero
 				if (!flag && arg0[i][j] == 0)
