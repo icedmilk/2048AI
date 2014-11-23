@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import com.yeepay.challenge.game2048.GameBoard;
 import com.yeepay.challenge.game2048.GamePlayer;
-import com.yeepay.challenge.game2048.GameConsole;
 
 class Simulator
 {
@@ -38,26 +37,6 @@ public class PlayerImpl implements GamePlayer
 
 	public PlayerImpl()
 	{
-
-	}
-
-	public static void main(String[] args)
-	{
-		final int runTime = 100;
-
-		int resultSum = 0;
-
-		long startTime = System.currentTimeMillis();
-		for (int i = 0; i < runTime; i++)
-		{
-			resultSum += GameConsole.start(PlayerImpl.class);
-		}
-		long endTime = System.currentTimeMillis() - startTime;
-
-		System.out.println("Avg Score:\t" + resultSum / runTime);
-		System.out.println("Total Time:\t" + endTime / 1000f + " s");
-		System.out
-				.println("Average Time:\t" + endTime / 1000f / runTime + " s");
 
 	}
 
